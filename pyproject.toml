@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "veriaero"
+version = "0.1.0"
+description = "VeriAero-CEGIS v3.2: Multi-Fidelity Verified Aerospace Design Kernel"
+readme = "AGENTS.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=2.2.6,!=2.4.0",
+    "scipy>=1.15.3",
+    "torch>=2.7.0",
+    "gpytorch>=1.15.2",
+    "botorch>=0.18.0",
+    "aerosandbox==4.2.10",
+    "neuralfoil==0.3.3",
+    "openaerostruct==2.12.1",
+    "openmdao==3.45.2",
+    "cvxpy>=1.6.0",
+    "gmsh==4.15.2",
+    "pydantic>=2.9.0",
+    "pyvista>=0.44.0",
+    "streamlit>=1.40.0",
+    "pytest>=8.3.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/veriaero"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"

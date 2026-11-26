@@ -1,0 +1,898 @@
+{
+  "catalog_id": "uav25kg_origin_audited_v3.2",
+  "version": "3.2.0",
+  "items": {
+    "CELL_ALLIED_MOLICEL_P45B": {
+      "sku_id": "CELL_ALLIED_MOLICEL_P45B",
+      "category": "cell",
+      "display_name": "Molicel INR21700-P45B",
+      "manufacturer": "E-One Moli Energy",
+      "origin_country": "Taiwan",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 6.8,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 231.43,
+        "cell_dcir_25c_mohm": 13.0,
+        "cell_max_c_rate": 10.0,
+        "cell_capacity_ah": 4.5,
+        "cell_mass_kg": 0.070,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Molicel P45B 21700 datasheet (4.5 Ah, 13 mOhm DCIR, 45 A cont., 70 g)"
+    },
+    "CELL_ALLIED_MOLICEL_P42A": {
+      "sku_id": "CELL_ALLIED_MOLICEL_P42A",
+      "category": "cell",
+      "display_name": "Molicel INR21700-P42A",
+      "manufacturer": "E-One Moli Energy",
+      "origin_country": "Taiwan",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 5.5,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 225.67,
+        "cell_dcir_25c_mohm": 15.0,
+        "cell_max_c_rate": 10.7,
+        "cell_capacity_ah": 4.2,
+        "cell_mass_kg": 0.067,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Molicel P42A 21700 datasheet (4.2 Ah, 15 mOhm DCIR, 45 A cont., 67 g)"
+    },
+    "CELL_ALLIED_MOLICEL_M65A": {
+      "sku_id": "CELL_ALLIED_MOLICEL_M65A",
+      "category": "cell",
+      "display_name": "Molicel INR21700-M65A",
+      "manufacturer": "E-One Moli Energy",
+      "origin_country": "Taiwan",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 10.5,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "cell_specific_energy_wh_kg": 310.71,
+        "cell_dcir_25c_mohm": 18.0,
+        "cell_max_c_rate": 4.0,
+        "cell_capacity_ah": 6.3,
+        "cell_mass_kg": 0.073,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Molicel M65A high-energy 21700 cell (6.3 Ah, 18 mOhm DCIR, 4C cont.)"
+    },
+    "CELL_ALLIED_SAMSUNG_40T": {
+      "sku_id": "CELL_ALLIED_SAMSUNG_40T",
+      "category": "cell",
+      "display_name": "Samsung INR21700-40T",
+      "manufacturer": "Samsung SDI",
+      "origin_country": "South Korea",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 5.4,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 211.76,
+        "cell_dcir_25c_mohm": 14.0,
+        "cell_max_c_rate": 8.75,
+        "cell_capacity_ah": 4.0,
+        "cell_mass_kg": 0.068,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Samsung SDI 40T3 datasheet (4.0 Ah, 14 mOhm DCIR, 35 A cont., 68 g)"
+    },
+    "CELL_ALLIED_SAMSUNG_50S": {
+      "sku_id": "CELL_ALLIED_SAMSUNG_50S",
+      "category": "cell",
+      "display_name": "Samsung INR21700-50S",
+      "manufacturer": "Samsung SDI",
+      "origin_country": "South Korea",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 6.4,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 250.0,
+        "cell_dcir_25c_mohm": 17.0,
+        "cell_max_c_rate": 5.0,
+        "cell_capacity_ah": 5.0,
+        "cell_mass_kg": 0.072,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Samsung SDI 50S datasheet (5.0 Ah, 17 mOhm DCIR, 25 A cont., 72 g)"
+    },
+    "CELL_ALLIED_LG_M50T": {
+      "sku_id": "CELL_ALLIED_LG_M50T",
+      "category": "cell",
+      "display_name": "LG INR21700-M50T",
+      "manufacturer": "LG Energy Solution",
+      "origin_country": "South Korea",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 4.8,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 261.58,
+        "cell_dcir_25c_mohm": 28.0,
+        "cell_max_c_rate": 2.9,
+        "cell_capacity_ah": 4.9,
+        "cell_mass_kg": 0.068,
+        "cell_v_nom": 3.63,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "LG M50T datasheet (4.9 Ah, 28 mOhm DCIR, 14.4 A max, 68 g)"
+    },
+    "CELL_ALLIED_LG_M50LT": {
+      "sku_id": "CELL_ALLIED_LG_M50LT",
+      "category": "cell",
+      "display_name": "LG INR21700-M50LT",
+      "manufacturer": "LG Energy Solution",
+      "origin_country": "South Korea",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 5.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 261.58,
+        "cell_dcir_25c_mohm": 25.0,
+        "cell_max_c_rate": 3.0,
+        "cell_capacity_ah": 4.9,
+        "cell_mass_kg": 0.068,
+        "cell_v_nom": 3.63,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "LG M50LT datasheet (4.9 Ah, 25 mOhm DCIR, 14.7 A cont., 68 g)"
+    },
+    "CELL_ALLIED_MURATA_VTC6": {
+      "sku_id": "CELL_ALLIED_MURATA_VTC6",
+      "category": "cell",
+      "display_name": "Murata US18650VTC6",
+      "manufacturer": "Murata Manufacturing",
+      "origin_country": "Japan",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 5.9,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 231.91,
+        "cell_dcir_25c_mohm": 14.0,
+        "cell_max_c_rate": 10.0,
+        "cell_capacity_ah": 3.0,
+        "cell_mass_kg": 0.047,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Murata/Sony VTC6 18650 datasheet (3.0 Ah, 14 mOhm DCIR, 30 A cont., 47 g)"
+    },
+    "CELL_ALLIED_AMPRIUS_SA10": {
+      "sku_id": "CELL_ALLIED_AMPRIUS_SA10",
+      "category": "cell",
+      "display_name": "Amprius SiCore 21700 SA10",
+      "manufacturer": "Amprius Technologies",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 19.5,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "cell_specific_energy_wh_kg": 370.0,
+        "cell_dcir_25c_mohm": 20.0,
+        "cell_max_c_rate": 5.0,
+        "cell_capacity_ah": 6.6,
+        "cell_mass_kg": 0.064,
+        "cell_v_nom": 3.59,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Amprius SiCore high-energy silicon-anode 21700 (quote-only parametric allied premium)"
+    },
+    "CELL_PRC_EVE_40PL": {
+      "sku_id": "CELL_PRC_EVE_40PL",
+      "category": "cell",
+      "display_name": "EVE INR21700/40PL",
+      "manufacturer": "EVE Energy",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 4.6,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 211.76,
+        "cell_dcir_25c_mohm": 11.0,
+        "cell_max_c_rate": 12.5,
+        "cell_capacity_ah": 4.0,
+        "cell_mass_kg": 0.068,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "EVE 40PL tabless 21700 datasheet (4.0 Ah, 11 mOhm DCIR, 50 A cont., 68 g)"
+    },
+    "CELL_PRC_EVE_50E": {
+      "sku_id": "CELL_PRC_EVE_50E",
+      "category": "cell",
+      "display_name": "EVE INR21700/50E",
+      "manufacturer": "EVE Energy",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 3.4,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 260.87,
+        "cell_dcir_25c_mohm": 28.0,
+        "cell_max_c_rate": 3.0,
+        "cell_capacity_ah": 5.0,
+        "cell_mass_kg": 0.069,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "EVE 50E datasheet (5.0 Ah energy cell, 28 mOhm DCIR, 15 A cont., 69 g)"
+    },
+    "CELL_PRC_BAK_N21700CG50": {
+      "sku_id": "CELL_PRC_BAK_N21700CG50",
+      "category": "cell",
+      "display_name": "BAK N21700CG-50",
+      "manufacturer": "BAK Power",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 3.1,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 260.87,
+        "cell_dcir_25c_mohm": 29.0,
+        "cell_max_c_rate": 3.0,
+        "cell_capacity_ah": 5.0,
+        "cell_mass_kg": 0.069,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "BAK N21700CG-50 datasheet (5.0 Ah, 29 mOhm DCIR, 15 A cont., 69 g)"
+    },
+    "CELL_PRC_LISHEN_LR2170LA": {
+      "sku_id": "CELL_PRC_LISHEN_LR2170LA",
+      "category": "cell",
+      "display_name": "Lishen LR2170LA",
+      "manufacturer": "Tianjin Lishen Battery",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 3.6,
+      "price_source": "retail_list",
+      "specs": {
+        "cell_specific_energy_wh_kg": 211.76,
+        "cell_dcir_25c_mohm": 15.0,
+        "cell_max_c_rate": 8.75,
+        "cell_capacity_ah": 4.0,
+        "cell_mass_kg": 0.068,
+        "cell_v_nom": 3.6,
+        "cell_v_min": 2.5,
+        "cell_v_max_charge": 4.2,
+        "max_temp_c": 60.0
+      },
+      "provenance_note": "Lishen LR2170LA datasheet (4.0 Ah, 15 mOhm DCIR, 35 A cont., 68 g)"
+    },
+
+    "MOTOR_LIFT_ALLIED_EPROPELLED_EM5215": {
+      "sku_id": "MOTOR_LIFT_ALLIED_EPROPELLED_EM5215",
+      "category": "lift_motor",
+      "display_name": "ePropelled eM5215-160KV",
+      "manufacturer": "ePropelled",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 395.0,
+      "price_source": "parametric_estimate",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00337,
+        "lift_motor_kv": 160.0,
+        "lift_motor_max_thrust_n": 98.0,
+        "lift_motor_mass_kg": 0.33,
+        "lift_motor_eff": 0.89,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "ePropelled USA heavy-lift brushless motor (up to 14S / 58.8 V)"
+    },
+    "MOTOR_LIFT_ALLIED_EPROPELLED_EM4215": {
+      "sku_id": "MOTOR_LIFT_ALLIED_EPROPELLED_EM4215",
+      "category": "lift_motor",
+      "display_name": "ePropelled eM4215-210KV",
+      "manufacturer": "ePropelled",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 355.0,
+      "price_source": "parametric_estimate",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00368,
+        "lift_motor_kv": 210.0,
+        "lift_motor_max_thrust_n": 76.0,
+        "lift_motor_mass_kg": 0.28,
+        "lift_motor_eff": 0.88,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "ePropelled USA medium-lift motor (up to 12S / 50.4 V)"
+    },
+    "MOTOR_LIFT_ALLIED_EPROPELLED_EM2808": {
+      "sku_id": "MOTOR_LIFT_ALLIED_EPROPELLED_EM2808",
+      "category": "lift_motor",
+      "display_name": "ePropelled eM6220-125KV",
+      "manufacturer": "ePropelled",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 465.0,
+      "price_source": "parametric_estimate",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00384,
+        "lift_motor_kv": 125.0,
+        "lift_motor_max_thrust_n": 112.0,
+        "lift_motor_mass_kg": 0.43,
+        "lift_motor_eff": 0.90,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "ePropelled USA 16S-capable lift motor (up to 67.2 V)"
+    },
+    "MOTOR_LIFT_ALLIED_VERTIQ_8108_G2": {
+      "sku_id": "MOTOR_LIFT_ALLIED_VERTIQ_8108_G2",
+      "category": "lift_motor",
+      "display_name": "Vertiq 81-08 G2 150KV (Integrated ESC, 12S Cap)",
+      "manufacturer": "Vertiq (IQ Motion Control)",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 560.0,
+      "price_source": "parametric_estimate",
+      "has_integrated_esc": true,
+      "max_series_s": 12,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00394,
+        "lift_motor_kv": 150.0,
+        "lift_motor_max_thrust_n": 94.0,
+        "lift_motor_mass_kg": 0.37,
+        "lift_motor_eff": 0.90,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "DIU Blue UAS listed integrated motor+ESC module; enforces lift ESC mass/cost=0 and N_s <= 12"
+    },
+    "MOTOR_LIFT_ALLIED_UMAC_5215": {
+      "sku_id": "MOTOR_LIFT_ALLIED_UMAC_5215",
+      "category": "lift_motor",
+      "display_name": "Unusual Machines Rotor Riot 5215-175KV NDAA",
+      "manufacturer": "Unusual Machines",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 295.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00389,
+        "lift_motor_kv": 175.0,
+        "lift_motor_max_thrust_n": 90.0,
+        "lift_motor_mass_kg": 0.35,
+        "lift_motor_eff": 0.87,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "Unusual Machines USA NDAA compliant motor (14S max)"
+    },
+    "MOTOR_LIFT_ALLIED_PLETTENBERG_ORBIT30": {
+      "sku_id": "MOTOR_LIFT_ALLIED_PLETTENBERG_ORBIT30",
+      "category": "lift_motor",
+      "display_name": "Plettenberg Orbit 30-14",
+      "manufacturer": "Plettenberg Elektromotoren",
+      "origin_country": "Germany",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 520.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00368,
+        "lift_motor_kv": 140.0,
+        "lift_motor_max_thrust_n": 95.0,
+        "lift_motor_mass_kg": 0.35,
+        "lift_motor_eff": 0.90,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "Plettenberg Germany high-efficiency industrial UAV motor (16S max)"
+    },
+    "MOTOR_LIFT_ALLIED_MAXON_ECI52": {
+      "sku_id": "MOTOR_LIFT_ALLIED_MAXON_ECI52",
+      "category": "lift_motor",
+      "display_name": "Maxon EC-i 52 / UAV-85",
+      "manufacturer": "Maxon Motor",
+      "origin_country": "Switzerland",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 580.0,
+      "price_source": "parametric_estimate",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00392,
+        "lift_motor_kv": 145.0,
+        "lift_motor_max_thrust_n": 102.0,
+        "lift_motor_mass_kg": 0.40,
+        "lift_motor_eff": 0.91,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "Maxon Switzerland precision aerospace brushless motor (16S max)"
+    },
+    "MOTOR_LIFT_US_PRC_KDE_7208XF_135": {
+      "sku_id": "MOTOR_LIFT_US_PRC_KDE_7208XF_135",
+      "category": "lift_motor",
+      "display_name": "KDE Direct 7208XF-135 (U.S.-Designed / PRC-Mfg)",
+      "manufacturer": "KDE Direct",
+      "origin_country": "USA/China",
+      "origin_tier": "US_DESIGNED_PRC_MFG",
+      "unit_cost_usd": 285.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00357,
+        "lift_motor_kv": 135.0,
+        "lift_motor_max_thrust_n": 98.0,
+        "lift_motor_mass_kg": 0.35,
+        "lift_motor_eff": 0.88,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "Separated U.S.-Designed / PRC-Manufactured tier per Section 3.2 origin audit"
+    },
+    "MOTOR_LIFT_US_PRC_KDE_5215XF_220": {
+      "sku_id": "MOTOR_LIFT_US_PRC_KDE_5215XF_220",
+      "category": "lift_motor",
+      "display_name": "KDE Direct 5215XF-220 (U.S.-Designed / PRC-Mfg)",
+      "manufacturer": "KDE Direct",
+      "origin_country": "USA/China",
+      "origin_tier": "US_DESIGNED_PRC_MFG",
+      "unit_cost_usd": 225.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00355,
+        "lift_motor_kv": 220.0,
+        "lift_motor_max_thrust_n": 76.0,
+        "lift_motor_mass_kg": 0.27,
+        "lift_motor_eff": 0.87,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "Separated U.S.-Designed / PRC-Manufactured tier per Section 3.2 origin audit"
+    },
+    "MOTOR_LIFT_PRC_TMOTOR_U7V2_280KV": {
+      "sku_id": "MOTOR_LIFT_PRC_TMOTOR_U7V2_280KV",
+      "category": "lift_motor",
+      "display_name": "T-Motor U7 V2 280KV",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 145.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00403,
+        "lift_motor_kv": 280.0,
+        "lift_motor_max_thrust_n": 72.0,
+        "lift_motor_mass_kg": 0.29,
+        "lift_motor_eff": 0.85,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "T-Motor U7 V2 280KV motor (12S max, 72 N peak)"
+    },
+    "MOTOR_LIFT_PRC_TMOTOR_MN6007II_160KV": {
+      "sku_id": "MOTOR_LIFT_PRC_TMOTOR_MN6007II_160KV",
+      "category": "lift_motor",
+      "display_name": "T-Motor MN6007II 160KV",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 155.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00372,
+        "lift_motor_kv": 160.0,
+        "lift_motor_max_thrust_n": 86.0,
+        "lift_motor_mass_kg": 0.32,
+        "lift_motor_eff": 0.86,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "T-Motor MN6007II 160KV (14S max, 86 N peak)"
+    },
+    "MOTOR_LIFT_PRC_TMOTOR_MN7005_115KV": {
+      "sku_id": "MOTOR_LIFT_PRC_TMOTOR_MN7005_115KV",
+      "category": "lift_motor",
+      "display_name": "T-Motor MN7005 115KV",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 195.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00385,
+        "lift_motor_kv": 115.0,
+        "lift_motor_max_thrust_n": 104.0,
+        "lift_motor_mass_kg": 0.40,
+        "lift_motor_eff": 0.87,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "T-Motor MN7005 115KV (16S max, 104 N peak)"
+    },
+    "MOTOR_LIFT_PRC_TMOTOR_P60_170KV": {
+      "sku_id": "MOTOR_LIFT_PRC_TMOTOR_P60_170KV",
+      "category": "lift_motor",
+      "display_name": "T-Motor P60 KV170",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 170.0,
+      "price_source": "retail_list",
+      "has_integrated_esc": false,
+      "specs": {
+        "lift_motor_mass_per_thrust_kg_n": 0.00413,
+        "lift_motor_kv": 170.0,
+        "lift_motor_max_thrust_n": 92.0,
+        "lift_motor_mass_kg": 0.38,
+        "lift_motor_eff": 0.86,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "T-Motor P60 KV170 (14S max, 92 N peak)"
+    },
+
+    "ESC_ALLIED_APD_80F3X": {
+      "sku_id": "ESC_ALLIED_APD_80F3X",
+      "category": "esc",
+      "display_name": "APD 80F3x HV ESC (14S)",
+      "manufacturer": "Advanced Power Drives",
+      "origin_country": "Australia",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 145.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "drive_elec_eff": 0.96,
+        "esc_thermal_t_max_c": 105.0,
+        "esc_mass_kg": 0.060,
+        "v_min_v": 22.2,
+        "v_max_v": 58.8,
+        "i_max_a": 80.0
+      },
+      "provenance_note": "APD Australia 80F3x (14S / 58.8 V max, 60 g)"
+    },
+    "ESC_ALLIED_APD_120F3X": {
+      "sku_id": "ESC_ALLIED_APD_120F3X",
+      "category": "esc",
+      "display_name": "APD 120F3x HV ESC (16S)",
+      "manufacturer": "Advanced Power Drives",
+      "origin_country": "Australia",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 185.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "drive_elec_eff": 0.96,
+        "esc_thermal_t_max_c": 110.0,
+        "esc_mass_kg": 0.085,
+        "v_min_v": 22.2,
+        "v_max_v": 67.2,
+        "i_max_a": 120.0
+      },
+      "provenance_note": "APD Australia 120F3x (16S / 67.2 V max, 85 g)"
+    },
+    "ESC_ALLIED_KONTRONIK_KOSMIK_160HV": {
+      "sku_id": "ESC_ALLIED_KONTRONIK_KOSMIK_160HV",
+      "category": "esc",
+      "display_name": "Kontronik KOSMIK 160+ HV (14S)",
+      "manufacturer": "Kontronik GmbH",
+      "origin_country": "Germany",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 490.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.97,
+        "esc_thermal_t_max_c": 110.0,
+        "esc_mass_kg": 0.145,
+        "v_min_v": 18.0,
+        "v_max_v": 58.8,
+        "i_max_a": 160.0
+      },
+      "provenance_note": "Kontronik Germany KOSMIK 160+ HV (14S / 58.8 V max)"
+    },
+    "ESC_ALLIED_EPROPELLED_E400_HV": {
+      "sku_id": "ESC_ALLIED_EPROPELLED_E400_HV",
+      "category": "esc",
+      "display_name": "ePropelled eC400 HV NDAA ESC (16S)",
+      "manufacturer": "ePropelled",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 295.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "drive_elec_eff": 0.96,
+        "esc_thermal_t_max_c": 105.0,
+        "esc_mass_kg": 0.095,
+        "v_min_v": 22.2,
+        "v_max_v": 67.2,
+        "i_max_a": 100.0
+      },
+      "provenance_note": "ePropelled USA NDAA HV ESC (16S / 67.2 V max)"
+    },
+    "ESC_ALLIED_CASTLE_EDGE_HV80": {
+      "sku_id": "ESC_ALLIED_CASTLE_EDGE_HV80",
+      "category": "esc",
+      "display_name": "Castle Creations Phoenix Edge HV 80 (COO-Audited USA, 12S)",
+      "manufacturer": "Castle Creations",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 190.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.95,
+        "esc_thermal_t_max_c": 100.0,
+        "esc_mass_kg": 0.090,
+        "v_min_v": 11.1,
+        "v_max_v": 50.4,
+        "i_max_a": 80.0
+      },
+      "provenance_note": "COO-audited Castle Creations Phoenix Edge HV 80 (12S / 50.4 V max)"
+    },
+    "ESC_PRC_HOBBYWING_XROTOR_80HV": {
+      "sku_id": "ESC_PRC_HOBBYWING_XROTOR_80HV",
+      "category": "esc",
+      "display_name": "Hobbywing XRotor Pro 80A HV (14S)",
+      "manufacturer": "Hobbywing Technology",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 68.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.94,
+        "esc_thermal_t_max_c": 95.0,
+        "esc_mass_kg": 0.095,
+        "v_min_v": 22.2,
+        "v_max_v": 58.8,
+        "i_max_a": 80.0
+      },
+      "provenance_note": "Hobbywing XRotor Pro 80A HV (14S / 58.8 V max)"
+    },
+    "ESC_PRC_TMOTOR_ALPHA_60HV": {
+      "sku_id": "ESC_PRC_TMOTOR_ALPHA_60HV",
+      "category": "esc",
+      "display_name": "T-Motor ALPHA 60A HV (12S)",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 85.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.94,
+        "esc_thermal_t_max_c": 95.0,
+        "esc_mass_kg": 0.075,
+        "v_min_v": 22.2,
+        "v_max_v": 50.4,
+        "i_max_a": 60.0
+      },
+      "provenance_note": "T-Motor ALPHA 60A HV (12S / 50.4 V max)"
+    },
+    "ESC_PRC_TMOTOR_FLAME_80HV": {
+      "sku_id": "ESC_PRC_TMOTOR_FLAME_80HV",
+      "category": "esc",
+      "display_name": "T-Motor FLAME 80A HV (14S)",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 92.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.94,
+        "esc_thermal_t_max_c": 95.0,
+        "esc_mass_kg": 0.088,
+        "v_min_v": 22.2,
+        "v_max_v": 58.8,
+        "i_max_a": 80.0
+      },
+      "provenance_note": "T-Motor FLAME 80A HV (14S / 58.8 V max)"
+    },
+    "ESC_PRC_KDE_UAS95HVC": {
+      "sku_id": "ESC_PRC_KDE_UAS95HVC",
+      "category": "esc",
+      "display_name": "KDE Direct KDEXF-UAS95HVC (Non-NDAA PRC Mfg)",
+      "manufacturer": "KDE Direct",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 165.0,
+      "price_source": "retail_list",
+      "specs": {
+        "drive_elec_eff": 0.95,
+        "esc_thermal_t_max_c": 100.0,
+        "esc_mass_kg": 0.098,
+        "v_min_v": 22.2,
+        "v_max_v": 58.8,
+        "i_max_a": 95.0
+      },
+      "provenance_note": "Non-NDAA KDE UAS ESC classified as PRC per Section 3.2 origin audit"
+    },
+
+    "MOTOR_CRUISE_ALLIED_EPROPELLED_EM3520": {
+      "sku_id": "MOTOR_CRUISE_ALLIED_EPROPELLED_EM3520",
+      "category": "cruise_motor",
+      "display_name": "ePropelled eM3520-380KV Pusher",
+      "manufacturer": "ePropelled",
+      "origin_country": "USA",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 420.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0080,
+        "cruise_motor_kv": 380.0,
+        "cruise_motor_mass_kg": 0.56,
+        "cruise_motor_eff": 0.90,
+        "max_power_w": 2800.0,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "ePropelled USA cruise pusher motor (up to 16S / 2.8 kW)"
+    },
+    "MOTOR_CRUISE_ALLIED_KONTRONIK_PYRO650": {
+      "sku_id": "MOTOR_CRUISE_ALLIED_KONTRONIK_PYRO650",
+      "category": "cruise_motor",
+      "display_name": "Kontronik PYRO 650-65",
+      "manufacturer": "Kontronik GmbH",
+      "origin_country": "Germany",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 510.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0068,
+        "cruise_motor_kv": 650.0,
+        "cruise_motor_mass_kg": 0.37,
+        "cruise_motor_eff": 0.91,
+        "max_power_w": 3200.0,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "Kontronik Germany PYRO 650 (14S max, high power density)"
+    },
+    "MOTOR_CRUISE_ALLIED_PLETTENBERG_ADV30": {
+      "sku_id": "MOTOR_CRUISE_ALLIED_PLETTENBERG_ADV30",
+      "category": "cruise_motor",
+      "display_name": "Plettenberg ADVANCE 30-10",
+      "manufacturer": "Plettenberg Elektromotoren",
+      "origin_country": "Germany",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 610.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0074,
+        "cruise_motor_kv": 420.0,
+        "cruise_motor_mass_kg": 0.52,
+        "cruise_motor_eff": 0.91,
+        "max_power_w": 3500.0,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "Plettenberg Germany ADVANCE 30-10 (16S max)"
+    },
+    "MOTOR_CRUISE_ALLIED_PLETTENBERG_NOVA15": {
+      "sku_id": "MOTOR_CRUISE_ALLIED_PLETTENBERG_NOVA15",
+      "category": "cruise_motor",
+      "display_name": "Plettenberg NOVA 15-8",
+      "manufacturer": "Plettenberg Elektromotoren",
+      "origin_country": "Germany",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 650.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0085,
+        "cruise_motor_kv": 310.0,
+        "cruise_motor_mass_kg": 0.68,
+        "cruise_motor_eff": 0.92,
+        "max_power_w": 4200.0,
+        "v_max_v": 67.2
+      },
+      "provenance_note": "Plettenberg Germany NOVA 15-8 (16S max)"
+    },
+    "MOTOR_CRUISE_ALLIED_MAXON_EC4POLE32": {
+      "sku_id": "MOTOR_CRUISE_ALLIED_MAXON_EC4POLE32",
+      "category": "cruise_motor",
+      "display_name": "Maxon EC-4pole 32 UAV Pusher",
+      "manufacturer": "Maxon Motor",
+      "origin_country": "Switzerland",
+      "origin_tier": "ALLIED",
+      "unit_cost_usd": 590.0,
+      "price_source": "parametric_estimate",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0072,
+        "cruise_motor_kv": 480.0,
+        "cruise_motor_mass_kg": 0.48,
+        "cruise_motor_eff": 0.91,
+        "max_power_w": 2600.0,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "Maxon Switzerland EC-4pole 32 (14S max)"
+    },
+    "MOTOR_CRUISE_PRC_TMOTOR_AT4120": {
+      "sku_id": "MOTOR_CRUISE_PRC_TMOTOR_AT4120",
+      "category": "cruise_motor",
+      "display_name": "T-Motor AT4120 KV560",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 115.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0076,
+        "cruise_motor_kv": 560.0,
+        "cruise_motor_mass_kg": 0.42,
+        "cruise_motor_eff": 0.87,
+        "max_power_w": 2200.0,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "T-Motor AT4120 KV560 fixed-wing pusher (12S max)"
+    },
+    "MOTOR_CRUISE_PRC_TMOTOR_MN5008": {
+      "sku_id": "MOTOR_CRUISE_PRC_TMOTOR_MN5008",
+      "category": "cruise_motor",
+      "display_name": "T-Motor MN5008 KV340",
+      "manufacturer": "T-Motor",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 135.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0079,
+        "cruise_motor_kv": 340.0,
+        "cruise_motor_mass_kg": 0.46,
+        "cruise_motor_eff": 0.88,
+        "max_power_w": 2600.0,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "T-Motor MN5008 KV340 (14S max)"
+    },
+    "MOTOR_CRUISE_PRC_SUNNYSKY_X4120S": {
+      "sku_id": "MOTOR_CRUISE_PRC_SUNNYSKY_X4120S",
+      "category": "cruise_motor",
+      "display_name": "SunnySky X4120S KV465",
+      "manufacturer": "SunnySky",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 78.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0082,
+        "cruise_motor_kv": 465.0,
+        "cruise_motor_mass_kg": 0.44,
+        "cruise_motor_eff": 0.86,
+        "max_power_w": 2100.0,
+        "v_max_v": 50.4
+      },
+      "provenance_note": "SunnySky X4120S KV465 (12S max)"
+    },
+    "MOTOR_CRUISE_PRC_SUNNYSKY_V4014": {
+      "sku_id": "MOTOR_CRUISE_PRC_SUNNYSKY_V4014",
+      "category": "cruise_motor",
+      "display_name": "SunnySky V4014 KV400",
+      "manufacturer": "SunnySky",
+      "origin_country": "China",
+      "origin_tier": "PRC",
+      "unit_cost_usd": 92.0,
+      "price_source": "retail_list",
+      "specs": {
+        "cruise_motor_mass_per_thrust_kg_n": 0.0084,
+        "cruise_motor_kv": 400.0,
+        "cruise_motor_mass_kg": 0.49,
+        "cruise_motor_eff": 0.87,
+        "max_power_w": 2500.0,
+        "v_max_v": 58.8
+      },
+      "provenance_note": "SunnySky V4014 KV400 (14S max)"
+    }
+  }
+}

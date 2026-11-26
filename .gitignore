@@ -1,0 +1,31 @@
+# Python & uv
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+# Compiled / downloaded native solver binaries
+bin/xfoil_patched
+bin/SU2_CFD
+bin/osmapDP.dat
+bin/Xfoil*
+bin/*.tgz
+bin/*.zip
+bin/*.so*
+bin/*.dll
+bin/*.exe
+
+# Experiment outputs & local env
+.env
+outputs/
+runs/
+problem_out/
+reports/
+*.vtu
+*.vtk
+*.csv.bak

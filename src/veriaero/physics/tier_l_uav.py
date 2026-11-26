@@ -446,14 +446,57 @@ def compute_root_bending_stress(
     }
 
 
+def _solve_5rotor_min_norm_nonneg(
+    a_5: np.ndarray,
+    b_eq: np.ndarray,
+    tol: float = 1e-10,
+) -> tuple[bool, np.ndarray | None]:
+    """Exact closed-form solver for min ||T||_2^2 s.t. A_5 T = b_eq, T >= 0 (A_5 is 4x5).
+
+    Because A_5 has 4 rows and 5 columns, when rank(A_5) == 4 the feasible affine
+    subspace is a 1-D line T(s) = T_min + s * n, where T_min = A_5^+ b is orthogonal
+    to the unit nullspace vector n. Hence ||T(s)||_2^2 = ||T_min||_2^2 + s^2 is
+    uniquely minimized by s* = clip(0, s_lo, s_hi) over the nonnegativity interval.
+    """
+    u_mat, s_vals, vt_mat = np.linalg.svd(a_5, full_matrices=True)
+    if len(s_vals) < 4 or s_vals[3] < 1e-10 * max(s_vals[0], 1.0):
+        return False, None
+
+    t_min = vt_mat[:4, :].T @ ((u_mat.T @ b_eq) / s_vals)
+    null_vec = vt_mat[4, :]
+
+    s_lo = -float("inf")
+    s_hi = float("inf")
+    for t_j, n_j in zip(t_min, null_vec):
+        if n_j > 1e-12:
+            s_lo = max(s_lo, -t_j / n_j)
+        elif n_j < -1e-12:
+            s_hi = min(s_hi, -t_j / n_j)
+        elif t_j < -tol:
+            return True, None  # Proven infeasible
+
+    if s_lo > s_hi + tol:
+        return True, None  # Proven infeasible
+
+    s_opt = float(np.clip(0.0, s_lo, s_hi))
+    sol5 = np.clip(t_min + s_opt * null_vec, 0.0, None)
+    return True, sol5
+
+
 def solve_oei_trim_qp(
     params: dict[str, float],
     geom: dict[str, float],
     mass_kg: float,
     selected_skus: dict[str, SKUItem],
     scenario: dict[str, float],
+    backend: str = "nullspace",
 ) -> dict[str, Any]:
-    """Solve 6-rotor twin-boom static OEI trim convex QP across all 6 failures x 3 CG shifts."""
+    """Solve 6-rotor twin-boom static OEI trim convex QP across all 6 failures x 3 CG shifts.
+
+    Uses exact closed-form 1-D nullspace projection by default (~0.2 ms for all 18 cases)
+    with automatic fallback to CVXPY on rank-deficient cases (or explicit `backend="cvxpy"`
+    for independent cross-verification).
+    """
     weight_n = mass_kg * G_ACCEL
     b = geom["wing_span_m"]
     y_b = BOOM_Y_FRAC * (0.5 * b)
@@ -478,12 +521,12 @@ def solve_oei_trim_qp(
     cg_frac = scenario["cg_shift_mac_frac"]
     dcg_shifts = [-cg_frac * mac, 0.0, cg_frac * mac]
 
-    t_vec = cp.Variable(6, nonneg=True)
     worst_peak_n = 0.0
     worst_case_label = ""
     max_eq_residual = 0.0
     worst_thrusts = [0.0] * 6
     worst_power_elec_w = 0.0
+    worst_peak_motor_elec_w = 0.0
     all_feasible = True
 
     rho = scenario["rho_air"]
@@ -494,75 +537,95 @@ def solve_oei_trim_qp(
     eta_lift_motor = lift_sku.specs["lift_motor_eff"]
     eta_lift_esc = 1.0 if lift_sku.has_integrated_esc else esc_sku.specs["drive_elec_eff"]
     eta_lift_em = eta_lift_motor * eta_lift_esc
+    power_coeff = 1.0 / (fm_hover * math.sqrt(2.0 * rho * a_disk) * eta_lift_em)
+
+    row_fz = np.array([math.cos(cants_rad[i]) for i in range(6)], dtype=float)
+    row_mx = np.array([coords[i][1] * math.cos(cants_rad[i]) for i in range(6)], dtype=float)
+    row_mz = np.array(
+        [
+            spins[i] * k_tau * math.cos(cants_rad[i]) - coords[i][1] * math.sin(cants_rad[i])
+            for i in range(6)
+        ],
+        dtype=float,
+    )
+    b_eq = np.array([weight_n, 0.0, 0.0, 0.0], dtype=float)
+    t_vec_cvx = cp.Variable(6, nonneg=True) if backend == "cvxpy" else None
 
     for fail_idx in range(6):
+        active_idx = [i for i in range(6) if i != fail_idx]
         for dcg in dcg_shifts:
-            row_fz = np.array([math.cos(cants_rad[i]) for i in range(6)], dtype=float)
-            row_mx = np.array([coords[i][1] * math.cos(cants_rad[i]) for i in range(6)], dtype=float)
             row_my = np.array(
                 [(coords[i][0] - dcg) * math.cos(cants_rad[i]) for i in range(6)],
                 dtype=float,
             )
-            row_mz = np.array(
-                [
-                    spins[i] * k_tau * math.cos(cants_rad[i])
-                    - coords[i][1] * math.sin(cants_rad[i])
-                    for i in range(6)
-                ],
-                dtype=float,
-            )
             a_eq = np.vstack([row_fz, row_mx, row_my, row_mz])
-            b_eq = np.array([weight_n, 0.0, 0.0, 0.0], dtype=float)
 
-            prob = cp.Problem(
-                cp.Minimize(cp.sum_squares(t_vec)),
-                [a_eq @ t_vec == b_eq, t_vec[fail_idx] == 0.0],
-            )
-            solved = False
-            for solver_name, kwargs in [
-                (cp.CLARABEL, {"tol_gap_abs": 1e-10, "tol_gap_rel": 1e-10, "tol_feas": 1e-10}),
-                (cp.OSQP, {"eps_abs": 1e-9, "eps_rel": 1e-9}),
-                (cp.SCS, {"eps": 1e-9}),
-            ]:
-                try:
-                    prob.solve(solver=solver_name, **kwargs)
-                    if prob.status in (
-                        cp.OPTIMAL,
-                        cp.OPTIMAL_INACCURATE,
-                        cp.INFEASIBLE,
-                        cp.INFEASIBLE_INACCURATE,
-                    ):
-                        solved = True
-                        break
-                except Exception:
+            sol: np.ndarray | None = None
+            resolved_exact = False
+            if backend == "nullspace":
+                resolved_exact, sol5 = _solve_5rotor_min_norm_nonneg(a_eq[:, active_idx], b_eq)
+                if resolved_exact:
+                    if sol5 is None:
+                        all_feasible = False
+                        continue
+                    sol = np.zeros(6, dtype=float)
+                    sol[active_idx] = sol5
+
+            if not resolved_exact:
+                t_var = t_vec_cvx if t_vec_cvx is not None else cp.Variable(6, nonneg=True)
+                prob = cp.Problem(
+                    cp.Minimize(cp.sum_squares(t_var)),
+                    [a_eq @ t_var == b_eq, t_var[fail_idx] == 0.0],
+                )
+                solved = False
+                for solver_name, kwargs in [
+                    (cp.CLARABEL, {"tol_gap_abs": 1e-10, "tol_gap_rel": 1e-10, "tol_feas": 1e-10}),
+                    (cp.OSQP, {"eps_abs": 1e-9, "eps_rel": 1e-9}),
+                    (cp.SCS, {"eps": 1e-9}),
+                ]:
+                    try:
+                        prob.solve(solver=solver_name, **kwargs)
+                        if prob.status in (
+                            cp.OPTIMAL,
+                            cp.OPTIMAL_INACCURATE,
+                            cp.INFEASIBLE,
+                            cp.INFEASIBLE_INACCURATE,
+                        ):
+                            solved = True
+                            break
+                    except Exception:
+                        continue
+
+                if not solved:
+                    raise RuntimeError(f"CVXPY solver failed on OEI fail={fail_idx}, dcg={dcg:.4f}")
+
+                if prob.status in (cp.INFEASIBLE, cp.INFEASIBLE_INACCURATE) or t_var.value is None:
+                    all_feasible = False
                     continue
 
-            if not solved:
-                raise RuntimeError(f"CVXPY solver failed on OEI fail={fail_idx}, dcg={dcg:.4f}")
+                sol = np.clip(np.asarray(t_var.value, dtype=float), 0.0, None)
+                sol[fail_idx] = 0.0
 
-            if prob.status in (cp.INFEASIBLE, cp.INFEASIBLE_INACCURATE) or t_vec.value is None:
-                all_feasible = False
-                continue
-
-            sol = np.clip(np.asarray(t_vec.value, dtype=float), 0.0, None)
-            sol[fail_idx] = 0.0
+            assert sol is not None
             res = float(np.max(np.abs(a_eq @ sol - b_eq)))
             max_eq_residual = max(max_eq_residual, res)
 
             peak_t = float(np.max(sol))
-            p_elec_w = float(
-                np.sum(np.power(sol, 1.5)) / (fm_hover * math.sqrt(2.0 * rho * a_disk)) / eta_lift_em
-            )
+            motor_powers_w = np.power(sol, 1.5) * power_coeff
+            p_elec_w = float(np.sum(motor_powers_w))
+            peak_motor_elec_w = float(np.max(motor_powers_w))
 
             if peak_t > worst_peak_n:
                 worst_peak_n = peak_t
                 worst_thrusts = [float(v) for v in sol]
                 worst_case_label = f"rotor_{fail_idx}_dcg_{dcg:+.4f}m"
             worst_power_elec_w = max(worst_power_elec_w, p_elec_w)
+            worst_peak_motor_elec_w = max(worst_peak_motor_elec_w, peak_motor_elec_w)
 
     if not all_feasible:
         worst_peak_n = max(worst_peak_n, 1e6)
         worst_power_elec_w = max(worst_power_elec_w, 1e6)
+        worst_peak_motor_elec_w = max(worst_peak_motor_elec_w, 1e6)
 
     return {
         "oei_all_18_cases_feasible": all_feasible,
@@ -571,6 +634,7 @@ def solve_oei_trim_qp(
         "worst_thrusts_n": worst_thrusts,
         "max_equilibrium_residual": max_eq_residual,
         "p_oei_elec_w": worst_power_elec_w,
+        "worst_peak_motor_elec_w": worst_peak_motor_elec_w,
         "lift_motor_max_thrust_n": lift_sku.specs["lift_motor_max_thrust_n"],
     }
 
@@ -897,6 +961,21 @@ class TierLUAVOracle:
                 "cold_oei_margin": float(cold_oei_margin),
             }
 
+            esc_sku = selected_sku_objs["esc"]
+            lift_sku = selected_sku_objs["lift_motor"]
+            cruise_sku = selected_sku_objs["cruise_motor"]
+            v_cruise_term = max(float(electro["cruise_v_term_v"]), 1.0)
+            v_oei_term = max(float(electro["oei_v_term_min_v"]), 1.0)
+            i_cruise_esc_a = float(aero["p_elec_cruise_w"]) / v_cruise_term
+            i_lift_esc_peak_a = (
+                0.0
+                if lift_sku.has_integrated_esc
+                else float(oei_trim["worst_peak_motor_elec_w"]) / v_oei_term
+            )
+            peak_single_esc_current_a = max(i_cruise_esc_a, i_lift_esc_peak_a)
+            esc_i_max_a = float(esc_sku.specs["i_max_a"])
+            cruise_motor_max_power_w = float(cruise_sku.specs["max_power_w"])
+
             constraints = {
                 "mass_excess_kg": float(mass_kg - scen["mtow_limit_kg"]),
                 "stall_cl_margin": float(aero["cl_cruise"] - 0.85 * aero["cl_max"]),
@@ -919,6 +998,10 @@ class TierLUAVOracle:
                     electro["oei_current_max_a"] - electro["i_pack_rated_max_a"]
                 ),
                 "oei_temp_margin_c": float(electro["t_oei_peak_c"] - scen["t_max_batt_c"]),
+                "esc_current_margin_a": float(peak_single_esc_current_a - esc_i_max_a),
+                "cruise_motor_power_margin_w": float(
+                    aero["p_elec_cruise_w"] - cruise_motor_max_power_w
+                ),
                 "compat_violation_count": float(len(compat_errors)),
             }
 

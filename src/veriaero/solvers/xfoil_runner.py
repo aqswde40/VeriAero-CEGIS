@@ -104,11 +104,16 @@ class XFoilRunner:
         polar_file: str,
         reynolds: float,
         mach: float,
-        alphas_deg: list[float],
+        alphas_deg: list[float] | None = None,
         x_tr_trip: float | None = None,
+        cl_targets: list[float] | None = None,
+        aseq: tuple[float, float, float] | None = None,
     ) -> str:
-        """Build an XFoil batch stdin script (N=200, N_crit=9.0, optional x_tr trip)."""
+        """Build an XFoil batch stdin script (N=200, N_crit=9.0, optional x_tr trip, CL & ASEQ)."""
         lines = [
+            "PLOP",
+            "G F",
+            "",
             f"LOAD {airfoil_file}",
             "PPAR",
             f"N {self.n_panels}",
@@ -132,8 +137,13 @@ class XFoilRunner:
                 "",
             ]
         )
-        for alpha in alphas_deg:
+        for cl_val in cl_targets or ():
+            lines.append(f"CL {cl_val:.4f}")
+        for alpha in alphas_deg or ():
             lines.append(f"ALFA {alpha:.4f}")
+        if aseq is not None:
+            a_start, a_end, a_step = aseq
+            lines.append(f"ASEQ {a_start:.3f} {a_end:.3f} {a_step:.3f}")
         lines.extend(["PACC", "", "QUIT", ""])
         return "\n".join(lines)
 
@@ -142,10 +152,12 @@ class XFoilRunner:
         airfoil_coords: np.ndarray,
         reynolds: float,
         mach: float,
-        alphas_deg: list[float],
+        alphas_deg: list[float] | None = None,
         x_tr_trip: float | None = None,
+        cl_targets: list[float] | None = None,
+        aseq: tuple[float, float, float] | None = None,
     ) -> XFoilRunResult:
-        """Execute patched XFoil 6.99 on airfoil coordinates for target alpha(s)."""
+        """Execute patched XFoil 6.99 on airfoil coordinates for target CL(s), alpha(s), or ASEQ."""
         if not self.is_available():
             return XFoilRunResult(
                 status=SolverStatus.UNRESOLVED_NUMERICAL,
@@ -172,15 +184,20 @@ class XFoilRunner:
                 mach=mach,
                 alphas_deg=alphas_deg,
                 x_tr_trip=x_tr_trip,
+                cl_targets=cl_targets,
+                aseq=aseq,
             )
 
             try:
+                env = os.environ.copy()
+                env.pop("DISPLAY", None)
                 proc = subprocess.run(
                     [str(self.binary_path)],
                     input=deck,
                     text=True,
                     capture_output=True,
                     cwd=str(tmp),
+                    env=env,
                     timeout=self.timeout_s,
                     check=False,
                 )

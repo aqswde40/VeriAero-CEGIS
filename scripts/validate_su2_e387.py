@@ -47,9 +47,9 @@ def main() -> None:
     ]
 
     grid_kwargs = (
-        {"n_airfoil_half": 41, "n_wake_pts": 19, "n_normal_pts": 25, "progression_normal": 1.15}
+        {"n_airfoil_half": 51, "n_wake_pts": 23, "n_normal_pts": 75}
         if args.coarse
-        else {"n_airfoil_half": 131, "n_wake_pts": 45, "n_normal_pts": 150, "progression_normal": 1.08}
+        else {"n_airfoil_half": 131, "n_wake_pts": 45, "n_normal_pts": 150}
     )
 
     runner = SU2Runner(omp_threads=8)
@@ -61,7 +61,15 @@ def main() -> None:
         cfg_path = case_dir / "rans_steady.cfg"
 
         coords = np.asarray(asb.Airfoil(af_name).coordinates, dtype=float)
-        generate_airfoil_cgrid_su2(coords, mesh_path, chord=1.0, farfield_radius=20.0, **grid_kwargs)
+        generate_airfoil_cgrid_su2(
+            coords,
+            mesh_path,
+            chord=1.0,
+            farfield_radius=20.0,
+            reynolds=re_num,
+            target_yplus=0.5,
+            **grid_kwargs,
+        )
         write_su2_rans_cfg(
             cfg_path=cfg_path,
             mesh_filename=mesh_path.name,
@@ -76,9 +84,10 @@ def main() -> None:
             status, report, reason = runner.run_case(workdir=case_dir, cfg_filename=cfg_path.name)
             print(f"[{case_name}] SU2 Status: {status.value}")
             if report is not None:
+                yp_str = f"{report.mean_yplus:.3f}" if report.mean_yplus is not None else "n/a"
                 print(
                     f"  Gate={report.gate_tier} | log10(rms[Rho])={report.final_log10_rms_rho:.2f} | "
-                    f"CL={report.cl_final:.4f} | CD={report.cd_final:.5f}"
+                    f"mean_y+={yp_str} | CL={report.cl_final:.4f} | CD={report.cd_final:.5f}"
                 )
             if reason:
                 print(f"  Note: {reason}")

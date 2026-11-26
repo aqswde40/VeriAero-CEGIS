@@ -76,6 +76,9 @@ def test_openaerostruct_cfrp_wingbox_with_viscous_false() -> None:
     )
     assert abs(oas["cl_oas"] - 0.643) < 0.05
     assert 0.005 < oas["cdi_oas"] < 0.020
+    panel_cl = np.asarray(oas["panel_cl"], dtype=float)
+    assert 0.35 <= float(np.mean(panel_cl)) <= 0.90
+    assert float(np.max(panel_cl)) < 1.15
     assert oas["tip_disp_cruise_m"] > 0.0
     assert oas["tip_disp_gust_m"] > oas["tip_disp_maneuver_3g_m"] > oas["tip_disp_cruise_m"]
     assert 5.0 < oas["vonmises_maneuver_3g_fs15_mpa"] < oas["vonmises_gust_pratt_fs15_mpa"] < 350.0
@@ -127,17 +130,21 @@ def test_tier_h1_oracle_8gl_free_and_tripped_xfoil_mocked() -> None:
             airfoil_coords: np.ndarray,
             reynolds: float,
             mach: float,
-            alphas_deg: list[float],
+            alphas_deg: list[float] | None = None,
             x_tr_trip: float | None = None,
+            cl_targets: list[float] | None = None,
+            aseq: tuple[float, float, float] | None = None,
         ) -> XFoilRunResult:
             calls_xtr.append(x_tr_trip)
             cd_val = 0.0095 if x_tr_trip is not None else 0.0074
+            cl_val = cl_targets[0] if cl_targets else 0.64
+            alpha_val = alphas_deg[0] if alphas_deg else 2.5
+            pts = [XFoilPolarPoint(alpha_val, cl_val, cd_val, 0.0020, -0.08, 0.45, 0.98)]
+            if aseq is not None or x_tr_trip is None:
+                pts.append(XFoilPolarPoint(12.0, 1.45, 0.0260, 0.0180, -0.06, 0.05, 1.00))
             return XFoilRunResult(
                 status=SolverStatus.RESOLVED_PASS,
-                points=(
-                    XFoilPolarPoint(alphas_deg[0], 0.64, cd_val, 0.0020, -0.08, 0.45, 0.98),
-                    XFoilPolarPoint(12.0, 1.45, 0.0260, 0.0180, -0.06, 0.05, 1.00),
-                ),
+                points=tuple(pts),
             )
 
     schema = ProblemSchema.from_json_file(SCHEMA_PATH)

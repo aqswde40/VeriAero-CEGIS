@@ -48,6 +48,7 @@ class VariableSpec(BaseModel):
     group: str = "geometry"
     catalog_category: str | None = None
     catalog_field: str | None = None
+    is_derived: bool = False
     description: str = ""
 
     @model_validator(mode="after")
@@ -277,6 +278,31 @@ class CompatibilityGraph(BaseModel):
                         f"max voltage {motor_sku.specs['v_max_v']:.2f} V"
                     )
 
+            elif rule.rule_type == "current_limit":
+                load_cat = p.get("load_category", "esc")
+                if load_cat not in selected_skus:
+                    continue
+                if p.get("skip_if_integrated_esc", False):
+                    lm = selected_skus.get("lift_motor")
+                    if lm is not None and lm.has_integrated_esc:
+                        continue
+                load_sku = selected_skus[load_cat]
+                i_field = p.get("load_i_max_field", "i_max_a")
+                if i_field not in load_sku.specs:
+                    errors.append(
+                        f"[{rule.rule_id}] {load_sku.sku_id} missing current rating '{i_field}'"
+                    )
+                    continue
+                i_max_load = float(load_sku.specs[i_field])
+                min_req_i = float(p.get("min_required_i_a", 0.0))
+                if "current_var" in p and p["current_var"] in params:
+                    min_req_i = max(min_req_i, float(params[p["current_var"]]))
+                if i_max_load < min_req_i - 1e-6:
+                    errors.append(
+                        f"[{rule.rule_id}] {load_sku.sku_id} current rating {i_max_load:.1f} A < "
+                        f"required {min_req_i:.1f} A"
+                    )
+
             elif rule.rule_type == "origin_policy":
                 rule_origins = set(p.get("allowed_origins", []))
                 if rule_origins:
@@ -364,6 +390,10 @@ class ProblemSchema(BaseModel):
     @property
     def dim(self) -> int:
         return len(self.variables)
+
+    def active_variable_indices(self) -> list[int]:
+        """Return indices of independent (non-derived) design variables."""
+        return [v.index for v in self.variables if not v.is_derived]
 
     def bounds(self) -> tuple[np.ndarray, np.ndarray]:
         lowers = np.array([v.lower for v in self.variables], dtype=float)
@@ -485,6 +515,14 @@ class ProblemSchema(BaseModel):
             bom_usd = self._estimate_bom_cost_usd(selected_skus, topology)
             snapped[var_idx["normalized_bom_cost"]] = float(
                 np.clip((bom_usd - 500.0) / 6000.0, 0.0, 1.0)
+            )
+        if "batt_mass_frac" in var_idx and "cell" in selected_skus:
+            bmf_var = self.variables[var_idx["batt_mass_frac"]]
+            n_cells = topology.get("batt_n_series", 12) * topology.get("batt_n_parallel", 7)
+            m_batt_kg = 1.15 * n_cells * selected_skus["cell"].specs["cell_mass_kg"]
+            mtow_ref = float(self.scenario_defaults.get("mtow_limit_kg", 25.0))
+            snapped[var_idx["batt_mass_frac"]] = float(
+                np.clip(m_batt_kg / max(mtow_ref, 1e-6), bmf_var.lower, bmf_var.upper)
             )
 
         params = self.decode_vector(snapped)

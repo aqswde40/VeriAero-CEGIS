@@ -13,6 +13,7 @@ build/
 bin/xfoil_patched
 bin/SU2_CFD
 bin/osmapDP.dat
+bin/osmap.dat
 bin/Xfoil*
 bin/*.tgz
 bin/*.zip

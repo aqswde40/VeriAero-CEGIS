@@ -39,7 +39,7 @@ echo "=== [3/6] Syncing ~/VeriAero-CEGIS Workspace & Git Remote ==="
 mkdir -p "${TARGET_DIR}"
 if [ -d "${WIN_SRC}" ] && [ "${PWD}" != "${TARGET_DIR}" ]; then
   rsync -a --exclude '.venv' --exclude '__pycache__' --exclude '.pytest_cache' \
-    --exclude 'bin/xfoil_patched' --exclude 'bin/SU2_CFD' --exclude 'bin/osmapDP.dat' \
+    --exclude 'bin/xfoil_patched' --exclude 'bin/SU2_CFD' --exclude 'bin/osmapDP.dat' --exclude 'bin/osmap.dat' \
     "${WIN_SRC}/" "${TARGET_DIR}/"
 fi
 cd "${TARGET_DIR}"
@@ -68,66 +68,16 @@ if torch.cuda.is_available():
 "
 
 echo "=== [5/6] Building Patched XFoil 6.99 -> bin/xfoil_patched ==="
-if [ ! -x "${TARGET_DIR}/bin/xfoil_patched" ] || [ ! -f "${TARGET_DIR}/bin/osmapDP.dat" ]; then
-  WORK_XFOIL=$(mktemp -d /tmp/xfoil_build.XXXXXX)
-  trap 'rm -rf "${WORK_XFOIL}"' EXIT
-  curl -fL "https://web.mit.edu/drela/Public/web/xfoil/xfoil6.99.tgz" -o "${WORK_XFOIL}/xfoil6.99.tgz"
-  tar -xzf "${WORK_XFOIL}/xfoil6.99.tgz" -C "${WORK_XFOIL}"
-  XDIR="${WORK_XFOIL}/Xfoil"
-  OSMAP_DEST="${TARGET_DIR}/bin/osmapDP.dat"
-
-  # Patch orrs/src/osmap.f so OSFILE points persistently to ~/VeriAero-CEGIS/bin/osmapDP.dat
-  python3 - "${XDIR}/orrs/src/osmap.f" "${OSMAP_DEST}" <<'PYEOF'
-import sys, pathlib, re
-osmap_path = pathlib.Path(sys.argv[1])
-dest = sys.argv[2]
-txt = osmap_path.read_text()
-txt_new = re.sub(
-    r"OSFILE\s*=\s*'[^']*'",
-    f"OSFILE = '{dest}'",
-    txt,
-)
-# Ensure OSFILE character declaration is long enough
-txt_new = re.sub(r"CHARACTER\*80\s+OSFILE", "CHARACTER*256 OSFILE", txt_new)
-osmap_path.write_text(txt_new)
-PYEOF
-
-  # Patch Makefiles for modern gfortran + zero SIGFPE trapping
-  for mk in "${XDIR}/orrs/bin/Makefile_DP" "${XDIR}/orrs/bin/Makefile" "${XDIR}/plotlib/config.make" "${XDIR}/bin/Makefile"; do
-    if [ -f "$mk" ]; then
-      python3 - "$mk" <<'PYEOF'
-import sys, pathlib, re
-p = pathlib.Path(sys.argv[1])
-txt = p.read_text()
-txt = re.sub(r"^FC\s*=.*$", "FC = gfortran", txt, flags=re.M)
-txt = re.sub(r"^FFLAGS\s*=.*$", "FFLAGS = -O2 -fallow-argument-mismatch -fno-range-check -ffpe-trap=none", txt, flags=re.M)
-txt = re.sub(r"^FFLOPT\s*=.*$", "FFLOPT = -O2 -fallow-argument-mismatch -fno-range-check -ffpe-trap=none", txt, flags=re.M)
-txt = re.sub(r"^DP\s*=.*$", "DP = -fdefault-real-8", txt, flags=re.M)
-p.write_text(txt)
-PYEOF
-    fi
-  done
-
-  # Build Orr-Sommerfeld database
-  make -C "${XDIR}/orrs/bin" -f Makefile_DP osgen
-  (cd "${XDIR}/orrs" && ./bin/osgen osmaps_ns.lst)
-  cp "${XDIR}/orrs/osmapDP.dat" "${OSMAP_DEST}"
-
-  # Build plotlib
-  make -C "${XDIR}/plotlib" libPltDP.a || make -C "${XDIR}/plotlib" libPlt.a
-
-  # Build xfoil
-  make -C "${XDIR}/bin" xfoil
-  cp "${XDIR}/bin/xfoil" "${TARGET_DIR}/bin/xfoil_patched"
-  chmod +x "${TARGET_DIR}/bin/xfoil_patched"
+if [ ! -x "${TARGET_DIR}/bin/xfoil_patched" ] || [ ! -f "${TARGET_DIR}/bin/osmap.dat" ]; then
+  bash "${TARGET_DIR}/scripts/build_xfoil.sh"
 fi
 
 echo "Running XFoil 6.99 NACA 0012 viscous smoke test (zero SIGFPE check)..."
 XFOIL_TEST_DIR=$(mktemp -d /tmp/xfoil_test.XXXXXX)
 (
   cd "${XFOIL_TEST_DIR}"
-  printf "NACA 0012\nOPER\nVISC 500000\nITER 100\nPACC\nnaca0012.pol\n\nALFA 0\nALFA 4\nALFA 8\nPACC\n\nQUIT\n" \
-    | "${TARGET_DIR}/bin/xfoil_patched" >/dev/null
+  printf "PLOP\nG F\n\nNACA 0012\nPPAR\nN 200\n\n\nPANE\nOPER\nVISC 500000\nITER 100\nPACC\nnaca0012.pol\n\nALFA 0\nALFA 4\nALFA 8\nPACC\n\nQUIT\n" \
+    | DISPLAY= "${TARGET_DIR}/bin/xfoil_patched" >/dev/null
   cat naca0012.pol
 )
 rm -rf "${XFOIL_TEST_DIR}"

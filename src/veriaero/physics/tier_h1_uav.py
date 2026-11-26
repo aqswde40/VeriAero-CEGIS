@@ -13,6 +13,7 @@ Locked verbatim to Architecture Reference Section 6.5:
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 import math
 import time
 import warnings
@@ -51,8 +52,11 @@ from veriaero.physics.tier_l_uav import (
 )
 from veriaero.solvers.xfoil_runner import XFoilRunner
 
-# Bounded cache of setup() OpenMDAO Problems keyed by structural mesh + airfoil wingbox signature
+# Bounded cache of setup() OpenMDAO Problems keyed ONLY by mesh topology, allowable stress,
+# and quantized normalized wingbox cross-section shape (all planform/twist/thickness/t_c
+# updates happen in-place via prob.set_val() with ZERO Problem.setup() rebuilds).
 _OAS_PROBLEM_CACHE: dict[tuple[Any, ...], om.Problem] = {}
+OAS_SAFETY_FACTOR = 1.5
 
 
 def _build_or_get_oas_wingbox_problem(
@@ -63,7 +67,7 @@ def _build_or_get_oas_wingbox_problem(
     num_y: int = 15,
     num_x: int = 3,
 ) -> tuple[om.Problem, np.ndarray]:
-    """Build or retrieve a cached setup() OpenMDAO Problem for the CFRP wingbox."""
+    """Build or retrieve a truly reusable cached setup() OpenMDAO Problem for the CFRP wingbox."""
     b = geom["wing_span_m"]
     c_r = geom["c_root_m"]
     lam = params["taper_ratio"]
@@ -80,141 +84,148 @@ def _build_or_get_oas_wingbox_problem(
         dtype="complex128",
     )
 
-    # Tip-to-root ordering matching OAS symmetric half-wing mesh y in [-b/2, 0]
+    # Tip-to-root ordering matching OAS symmetric half-wing mesh y in [-b/2, 0].
+    # Preserve exact spar-cap flange area (0.10*c*t_cap distributed across 0.40*c OAS box)
+    # plus 25% axial stiffness contribution from +-45 deg CFRP skins.
     spar_thk_cp = np.array([params["web_thickness_m"], params["web_thickness_m"]], dtype=float)
-    skin_eq = params["skin_thickness_m"] + 0.35 * params["spar_cap_thickness_m"]
-    skin_thk_cp = np.array([0.8 * skin_eq, skin_eq], dtype=float)
+    skin_eq = 0.25 * params["spar_cap_thickness_m"] + 0.25 * params["skin_thickness_m"]
+    skin_thk_cp = np.array([0.85 * skin_eq, skin_eq], dtype=float)
     twist_cp = np.array([params["tip_twist_deg"], params["root_twist_deg"]], dtype=float)
 
-    cache_key = (
-        num_y,
-        num_x,
-        round(b, 5),
-        round(c_r, 5),
-        round(lam, 5),
-        round(tc, 5),
-        round(float(twist_cp[0]), 4),
-        round(float(twist_cp[1]), 4),
-        round(float(spar_thk_cp[0]), 6),
-        round(float(skin_thk_cp[1]), 6),
-        tuple(round(float(v), 5) for v in y_upper[::4].real),
-        tuple(round(float(v), 5) for v in y_lower[::4].real),
+    # Key cache on normalized box contour shape (independent of planform, thickness, twist, or t/c)
+    tc_safe = max(tc, 1e-4)
+    norm_shape_sig = (
+        tuple(round(float(v) / tc_safe, 2) for v in y_upper[::7].real),
+        tuple(round(float(v) / tc_safe, 2) for v in y_lower[::7].real),
     )
+    cache_key = (num_y, num_x, round(sigma_allow_mpa, 2), norm_shape_sig)
 
     if cache_key in _OAS_PROBLEM_CACHE:
-        return _OAS_PROBLEM_CACHE[cache_key], x_box
+        prob = _OAS_PROBLEM_CACHE[cache_key]
+    else:
+        # Unit rectangular base mesh; span, taper, and root chord are updated dynamically via set_val()
+        mesh = generate_mesh(
+            {
+                "num_y": num_y,
+                "num_x": num_x,
+                "wing_type": "rect",
+                "symmetry": True,
+                "span": 1.0,
+                "root_chord": 1.0,
+                "span_cos_spacing": 0.5,
+                "chord_cos_spacing": 0.0,
+            }
+        )
 
-    mesh = generate_mesh(
-        {
-            "num_y": num_y,
-            "num_x": num_x,
-            "wing_type": "rect",
+        surface: dict[str, Any] = {
+            "name": "wing",
             "symmetry": True,
+            "S_ref_type": "projected",
+            "fem_model_type": "wingbox",
+            "mesh": mesh,
             "span": b,
-            "root_chord": c_r,
-            "span_cos_spacing": 0.5,
-            "chord_cos_spacing": 0.0,
+            "taper": lam,
+            "chord_cp": np.array([c_r], dtype=float),
+            "sweep": 2.0,
+            "twist_cp": twist_cp,
+            "data_x_upper": x_box.astype("complex128"),
+            "data_x_lower": x_box.astype("complex128"),
+            "data_y_upper": y_upper,
+            "data_y_lower": y_lower,
+            "original_wingbox_airfoil_t_over_c": tc,
+            "t_over_c_cp": np.array([tc], dtype=float),
+            "spar_thickness_cp": spar_thk_cp,
+            "skin_thickness_cp": skin_thk_cp,
+            "CL0": 0.0,
+            "CD0": 0.0,
+            "with_viscous": False,
+            "with_wave": False,
+            "k_lam": 0.05,
+            "c_max_t": 0.30,
+            "E": 110.0e9,
+            "G": 40.0e9,
+            "yield": sigma_allow_mpa * 1.0e6,
+            "safety_factor": OAS_SAFETY_FACTOR,
+            "strength_factor_for_upper_skin": 1.0,
+            "mrho": 1600.0,
+            "wing_weight_ratio": 1.2,
+            "exact_failure_constraint": False,
+            "struct_weight_relief": True,
+            "distributed_fuel_weight": False,
         }
-    )
 
-    surface: dict[str, Any] = {
-        "name": "wing",
-        "symmetry": True,
-        "S_ref_type": "projected",
-        "fem_model_type": "wingbox",
-        "mesh": mesh,
-        "taper": lam,
-        "sweep": 2.0,
-        "twist_cp": twist_cp,
-        "data_x_upper": x_box.astype("complex128"),
-        "data_x_lower": x_box.astype("complex128"),
-        "data_y_upper": y_upper,
-        "data_y_lower": y_lower,
-        "original_wingbox_airfoil_t_over_c": tc,
-        "t_over_c_cp": np.array([tc], dtype=float),
-        "spar_thickness_cp": spar_thk_cp,
-        "skin_thickness_cp": skin_thk_cp,
-        "CL0": 0.0,
-        "CD0": 0.0,
-        "with_viscous": False,
-        "with_wave": False,
-        "k_lam": 0.05,
-        "c_max_t": 0.30,
-        "E": 110.0e9,
-        "G": 40.0e9,
-        "yield": sigma_allow_mpa * 1.0e6,
-        "safety_factor": 1.5,
-        "strength_factor_for_upper_skin": 1.0,
-        "mrho": 1600.0,
-        "wing_weight_ratio": 1.2,
-        "exact_failure_constraint": False,
-        "struct_weight_relief": True,
-        "distributed_fuel_weight": False,
-    }
+        prob = om.Problem(reports=False)
+        indep = om.IndepVarComp()
+        indep.add_output("v", val=24.0, units="m/s")
+        indep.add_output("alpha", val=3.0, units="deg")
+        indep.add_output("Mach_number", val=24.0 / 340.3)
+        indep.add_output("re", val=5.165e5, units="1/m")
+        indep.add_output("rho", val=1.225, units="kg/m**3")
+        indep.add_output("CT", val=1.0e-5, units="1/s")
+        indep.add_output("R", val=150.0e3, units="m")
+        indep.add_output("W0", val=21.0, units="kg")
+        indep.add_output("speed_of_sound", val=340.3, units="m/s")
+        indep.add_output("load_factor", val=1.0)
+        indep.add_output("empty_cg", val=np.zeros(3), units="m")
+        indep.add_output("beta", val=0.0, units="deg")
+        prob.model.add_subsystem("prob_vars", indep, promotes=["*"])
 
-    prob = om.Problem(reports=False)
-    indep = om.IndepVarComp()
-    indep.add_output("v", val=24.0, units="m/s")
-    indep.add_output("alpha", val=3.0, units="deg")
-    indep.add_output("Mach_number", val=24.0 / 340.3)
-    indep.add_output("re", val=5.165e5, units="1/m")
-    indep.add_output("rho", val=1.225, units="kg/m**3")
-    indep.add_output("CT", val=1.0e-5, units="1/s")
-    indep.add_output("R", val=150.0e3, units="m")
-    indep.add_output("W0", val=21.0, units="kg")
-    indep.add_output("speed_of_sound", val=340.3, units="m/s")
-    indep.add_output("load_factor", val=1.0)
-    indep.add_output("empty_cg", val=np.zeros(3), units="m")
-    indep.add_output("beta", val=0.0, units="deg")
-    prob.model.add_subsystem("prob_vars", indep, promotes=["*"])
+        prob.model.add_subsystem("wing", AerostructGeometry(surface=surface))
+        prob.model.add_subsystem(
+            "AS_point_0",
+            AerostructPoint(surfaces=[surface]),
+            promotes_inputs=[
+                "v",
+                "alpha",
+                "Mach_number",
+                "re",
+                "rho",
+                "CT",
+                "R",
+                "W0",
+                "speed_of_sound",
+                "load_factor",
+                "empty_cg",
+                "beta",
+            ],
+        )
+        for src, dst in [
+            ("wing.local_stiff_transformed", "AS_point_0.coupled.wing.local_stiff_transformed"),
+            ("wing.nodes", "AS_point_0.coupled.wing.nodes"),
+            ("wing.nodes", "AS_point_0.wing_perf.nodes"),
+            ("wing.mesh", "AS_point_0.coupled.wing.mesh"),
+            ("wing.element_mass", "AS_point_0.coupled.wing.element_mass"),
+            ("wing.Qz", "AS_point_0.wing_perf.Qz"),
+            ("wing.J", "AS_point_0.wing_perf.J"),
+            ("wing.A_enc", "AS_point_0.wing_perf.A_enc"),
+            ("wing.htop", "AS_point_0.wing_perf.htop"),
+            ("wing.hbottom", "AS_point_0.wing_perf.hbottom"),
+            ("wing.hfront", "AS_point_0.wing_perf.hfront"),
+            ("wing.hrear", "AS_point_0.wing_perf.hrear"),
+            ("wing.spar_thickness", "AS_point_0.wing_perf.spar_thickness"),
+            ("wing.t_over_c", "AS_point_0.wing_perf.t_over_c"),
+            ("wing.structural_mass", "AS_point_0.total_perf.wing_structural_mass"),
+            ("wing.cg_location", "AS_point_0.total_perf.wing_cg_location"),
+        ]:
+            prob.model.connect(src, dst)
 
-    prob.model.add_subsystem("wing", AerostructGeometry(surface=surface))
-    prob.model.add_subsystem(
-        "AS_point_0",
-        AerostructPoint(surfaces=[surface]),
-        promotes_inputs=[
-            "v",
-            "alpha",
-            "Mach_number",
-            "re",
-            "rho",
-            "CT",
-            "R",
-            "W0",
-            "speed_of_sound",
-            "load_factor",
-            "empty_cg",
-            "beta",
-        ],
-    )
-    for src, dst in [
-        ("wing.local_stiff_transformed", "AS_point_0.coupled.wing.local_stiff_transformed"),
-        ("wing.nodes", "AS_point_0.coupled.wing.nodes"),
-        ("wing.nodes", "AS_point_0.wing_perf.nodes"),
-        ("wing.mesh", "AS_point_0.coupled.wing.mesh"),
-        ("wing.element_mass", "AS_point_0.coupled.wing.element_mass"),
-        ("wing.Qz", "AS_point_0.wing_perf.Qz"),
-        ("wing.J", "AS_point_0.wing_perf.J"),
-        ("wing.A_enc", "AS_point_0.wing_perf.A_enc"),
-        ("wing.htop", "AS_point_0.wing_perf.htop"),
-        ("wing.hbottom", "AS_point_0.wing_perf.hbottom"),
-        ("wing.hfront", "AS_point_0.wing_perf.hfront"),
-        ("wing.hrear", "AS_point_0.wing_perf.hrear"),
-        ("wing.spar_thickness", "AS_point_0.wing_perf.spar_thickness"),
-        ("wing.t_over_c", "AS_point_0.wing_perf.t_over_c"),
-        ("wing.structural_mass", "AS_point_0.total_perf.wing_structural_mass"),
-        ("wing.cg_location", "AS_point_0.total_perf.wing_cg_location"),
-    ]:
-        prob.model.connect(src, dst)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            prob.setup(check=False)
+            prob.model.AS_point_0.coupled.nonlinear_solver.options["iprint"] = -1
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        prob.setup(check=False)
-        prob.model.AS_point_0.coupled.nonlinear_solver.options["iprint"] = -1
+        if len(_OAS_PROBLEM_CACHE) >= 32:
+            _OAS_PROBLEM_CACHE.clear()
+        _OAS_PROBLEM_CACHE[cache_key] = prob
 
-    if len(_OAS_PROBLEM_CACHE) >= 32:
-        _OAS_PROBLEM_CACHE.clear()
-    _OAS_PROBLEM_CACHE[cache_key] = prob
+    # Apply current design's planform, twist, thickness, and t/c in-place (true cache reuse)
+    prob.set_val("wing.geometry.mesh.stretch.span", float(b))
+    prob.set_val("wing.geometry.mesh.taper.taper", float(lam))
+    prob.set_val("wing.geometry.chord_cp", np.array([c_r], dtype=float))
+    prob.set_val("wing.twist_cp", twist_cp)
+    prob.set_val("wing.spar_thickness_cp", spar_thk_cp)
+    prob.set_val("wing.skin_thickness_cp", skin_thk_cp)
+    prob.set_val("wing.geometry.t_over_c_bsp.t_over_c_cp", np.array([tc], dtype=float))
     return prob, x_box
 
 
@@ -238,12 +249,14 @@ def _eval_cached_oas_point(
         warnings.simplefilter("ignore")
         prob.run_model()
 
-    sec_forces = np.asarray(prob["AS_point_0.coupled.aero_states.wing_sec_forces"], dtype=float)
-    chords = np.asarray(prob["AS_point_0.coupled.wing.chords"], dtype=float)
-    widths = np.asarray(prob["AS_point_0.coupled.wing.widths"], dtype=float)
-    nodes = np.asarray(prob["wing.nodes"], dtype=float)
-    disp = np.asarray(prob["AS_point_0.coupled.wing.disp"], dtype=float)
-    vonmises = np.asarray(prob["AS_point_0.wing_perf.vonmises"], dtype=float)
+    sec_forces = np.array(
+        prob["AS_point_0.coupled.aero_states.wing_sec_forces"], dtype=float, copy=True
+    )
+    chords = np.array(prob["AS_point_0.coupled.wing.chords"], dtype=float, copy=True)
+    widths = np.array(prob["AS_point_0.coupled.wing.widths"], dtype=float, copy=True)
+    nodes = np.array(prob["wing.nodes"], dtype=float, copy=True)
+    disp = np.array(prob["AS_point_0.coupled.wing.disp"], dtype=float, copy=True)
+    vonmises = np.array(prob["AS_point_0.wing_perf.vonmises"], dtype=float, copy=True)
 
     return {
         "cl": float(np.asarray(prob["AS_point_0.wing_perf.CL"]).item()),
@@ -341,8 +354,10 @@ def run_openaerostruct_wing(
         "tip_disp_cruise_m": pt_cruise["tip_disp_z_m"],
         "tip_disp_maneuver_3g_m": pt_man["tip_disp_z_m"],
         "tip_disp_gust_m": pt_gust["tip_disp_z_m"],
-        "vonmises_maneuver_3g_fs15_mpa": pt_man["vonmises_max_mpa"],
-        "vonmises_gust_pratt_fs15_mpa": pt_gust["vonmises_max_mpa"],
+        "vonmises_maneuver_3g_unfactored_mpa": pt_man["vonmises_max_mpa"],
+        "vonmises_gust_pratt_unfactored_mpa": pt_gust["vonmises_max_mpa"],
+        "vonmises_maneuver_3g_fs15_mpa": OAS_SAFETY_FACTOR * pt_man["vonmises_max_mpa"],
+        "vonmises_gust_pratt_fs15_mpa": OAS_SAFETY_FACTOR * pt_gust["vonmises_max_mpa"],
         "n_gust_limit": n_gust,
         "failure_maneuver_ks": pt_man["failure_ks"],
         "failure_gust_ks": pt_gust["failure_ks"],
@@ -452,14 +467,9 @@ class TierH1UAVOracle:
             cl_pan = np.asarray(oas_info["panel_cl"], dtype=float)
             order = np.argsort(y_pan)
             y_pan_s, cl_pan_s = y_pan[order], cl_pan[order]
-
-            cd_prof_num = 0.0
-            area_gl_den = 0.0
-            xfoil_stations: list[dict[str, float]] = []
-            cl_max_min = float("inf")
             camber = float(airfoil_cst.get("max_camber_over_c", 0.029))
 
-            for y_i, dy_i in zip(y_gl, dy_gl):
+            def _eval_gl_station(y_i: float, dy_i: float) -> dict[str, float]:
                 c_i = c_r + (c_t - c_r) * (float(y_i) / half_b)
                 cl_i = float(np.interp(float(y_i), y_pan_s, cl_pan_s))
                 re_i = rho * v_mps * c_i / mu
@@ -470,7 +480,8 @@ class TierH1UAVOracle:
                     airfoil_coords=coords,
                     reynolds=re_i,
                     mach=mach,
-                    alphas_deg=[alpha_est, 12.0],
+                    cl_targets=[cl_i],
+                    aseq=(6.0, 15.0, 1.5),
                     x_tr_trip=None,
                 )
                 if xf_free.status != SolverStatus.RESOLVED_PASS or not xf_free.points:
@@ -482,7 +493,7 @@ class TierH1UAVOracle:
                     airfoil_coords=coords,
                     reynolds=re_i,
                     mach=mach,
-                    alphas_deg=[alpha_est],
+                    cl_targets=[cl_i],
                     x_tr_trip=0.05,
                 )
                 if xf_trip.status != SolverStatus.RESOLVED_PASS or not xf_trip.points:
@@ -490,26 +501,32 @@ class TierH1UAVOracle:
                         xf_trip.failure_reason or "XFoil tripped x_tr=0.05 station failed to converge"
                     )
 
-                pt_free = min(xf_free.points, key=lambda pt: abs(pt.alpha_deg - alpha_est))
-                pt_trip = xf_trip.points[0]
+                pt_free = min(xf_free.points, key=lambda pt: abs(pt.cl - cl_i))
+                pt_trip = min(xf_trip.points, key=lambda pt: abs(pt.cl - cl_i))
                 # Blend 80% natural free transition + 20% insect/roughness trip (x_tr=0.05)
                 cd_station = 0.80 * pt_free.cd + 0.20 * pt_trip.cd
                 cl_max_station = max(pt.cl for pt in xf_free.points)
-                cl_max_min = min(cl_max_min, cl_max_station)
+                return {
+                    "y_m": float(y_i),
+                    "dy_m": float(dy_i),
+                    "chord_m": float(c_i),
+                    "re": float(re_i),
+                    "cl_target": float(cl_i),
+                    "alpha_deg": float(pt_free.alpha_deg),
+                    "alpha_est_deg": float(alpha_est),
+                    "cd_free": float(pt_free.cd),
+                    "cd_tripped_05": float(pt_trip.cd),
+                    "cd_blended": float(cd_station),
+                    "cl_max": float(cl_max_station),
+                }
 
-                cd_prof_num += cd_station * c_i * float(dy_i)
-                area_gl_den += c_i * float(dy_i)
-                xfoil_stations.append(
-                    {
-                        "y_m": float(y_i),
-                        "chord_m": float(c_i),
-                        "re": float(re_i),
-                        "alpha_deg": float(alpha_est),
-                        "cd_free": float(pt_free.cd),
-                        "cd_tripped_05": float(pt_trip.cd),
-                        "cd_blended": float(cd_station),
-                    }
-                )
+            station_inputs = list(zip([float(y) for y in y_gl], [float(dy) for dy in dy_gl]))
+            with ThreadPoolExecutor(max_workers=min(8, len(station_inputs))) as pool:
+                xfoil_stations = list(pool.map(lambda pair: _eval_gl_station(pair[0], pair[1]), station_inputs))
+
+            cd_prof_num = sum(st["cd_blended"] * st["chord_m"] * st["dy_m"] for st in xfoil_stations)
+            area_gl_den = sum(st["chord_m"] * st["dy_m"] for st in xfoil_stations)
+            cl_max_min = min(st["cl_max"] for st in xfoil_stations)
 
             cd_wing_prof_h1 = cd_prof_num / max(area_gl_den, 1e-9)
 
@@ -579,6 +596,21 @@ class TierH1UAVOracle:
                 "domestic_bom_cost_usd": float(mass_info["domestic_bom_cost_usd"]),
                 "cold_oei_margin": float(cold_oei_margin),
             }
+            esc_sku = selected_sku_objs["esc"]
+            lift_sku = selected_sku_objs["lift_motor"]
+            cruise_sku = selected_sku_objs["cruise_motor"]
+            v_cruise_term = max(float(electro["cruise_v_term_v"]), 1.0)
+            v_oei_term = max(float(electro["oei_v_term_min_v"]), 1.0)
+            i_cruise_esc_a = float(p_elec_cruise_w) / v_cruise_term
+            i_lift_esc_peak_a = (
+                0.0
+                if lift_sku.has_integrated_esc
+                else float(oei_trim["worst_peak_motor_elec_w"]) / v_oei_term
+            )
+            peak_single_esc_current_a = max(i_cruise_esc_a, i_lift_esc_peak_a)
+            esc_i_max_a = float(esc_sku.specs["i_max_a"])
+            cruise_motor_max_power_w = float(cruise_sku.specs["max_power_w"])
+
             constraints = {
                 "mass_excess_kg": float(mass_kg - scen["mtow_limit_kg"]),
                 "stall_cl_margin": float(cl_cruise - 0.85 * cl_max_min),
@@ -601,6 +633,8 @@ class TierH1UAVOracle:
                     electro["oei_current_max_a"] - electro["i_pack_rated_max_a"]
                 ),
                 "oei_temp_margin_c": float(electro["t_oei_peak_c"] - scen["t_max_batt_c"]),
+                "esc_current_margin_a": float(peak_single_esc_current_a - esc_i_max_a),
+                "cruise_motor_power_margin_w": float(p_elec_cruise_w - cruise_motor_max_power_w),
                 "compat_violation_count": float(len(compat_errors)),
             }
 

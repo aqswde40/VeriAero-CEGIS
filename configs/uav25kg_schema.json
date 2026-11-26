@@ -118,7 +118,8 @@
       "baseline": 0.27,
       "unit": "-",
       "group": "geometry",
-      "description": "Target battery pack mass fraction m_batt / MTOW"
+      "is_derived": true,
+      "description": "Derived battery pack mass fraction m_batt / MTOW_ref synced after discrete (N_s, N_p, cell) snapping"
     },
     {
       "name": "airfoil_pca_0",
@@ -290,6 +291,7 @@
       "baseline": 0.65,
       "unit": "-",
       "group": "hardware",
+      "is_derived": true,
       "description": "Normalized propulsion+battery BOM cost derived after SKU snapping"
     },
     {
@@ -401,6 +403,20 @@
       "tolerance": 1e-06,
       "m_safe_scale": 15.0,
       "description": "T_oei_peak_c - t_max_batt_c <= 0"
+    },
+    {
+      "name": "esc_current_margin_a",
+      "unit": "A",
+      "tolerance": 1e-06,
+      "m_safe_scale": 25.0,
+      "description": "peak_single_esc_current_a - esc_i_max_a <= 0 across OEI & cruise"
+    },
+    {
+      "name": "cruise_motor_power_margin_w",
+      "unit": "W",
+      "tolerance": 1e-06,
+      "m_safe_scale": 1000.0,
+      "description": "p_cruise_elec_w - cruise_motor_max_power_w <= 0"
     },
     {
       "name": "compat_violation_count",
@@ -1349,6 +1365,17 @@
           "cell_category": "cell",
           "series_var": "batt_n_series",
           "cell_v_max_field": "cell_v_max_charge"
+        }
+      },
+      {
+        "rule_id": "esc_min_current_rating",
+        "rule_type": "current_limit",
+        "description": "External ESC continuous current rating must meet 25 kg class minimum (>= 50 A)",
+        "params": {
+          "load_category": "esc",
+          "load_i_max_field": "i_max_a",
+          "min_required_i_a": 50.0,
+          "skip_if_integrated_esc": true
         }
       }
     ],

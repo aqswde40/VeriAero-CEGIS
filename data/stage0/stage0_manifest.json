@@ -1,0 +1,200 @@
+{
+  "schema_id": "uav25kg_v3.2",
+  "schema_version": "3.2.0",
+  "generated_utc": "2026-11-27T18:26:19Z",
+  "host_provenance": {
+    "host_id": "C2-WSL2",
+    "hostname": "C2-Desktop",
+    "os_platform": "Linux",
+    "os_release": "6.18.58.1-microsoft-standard-WSL2",
+    "is_wsl2": true,
+    "cpu_model": "x86_64",
+    "cpu_logical_cores": 10,
+    "ram_total_gb": 23.47,
+    "gpu_name": "NVIDIA GeForce RTX 3080",
+    "gpu_vram_gb": 10.0,
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "python_version": "3.12.16",
+    "openblas_num_threads": "1",
+    "worker_count": 8,
+    "git_commit": "0b6eca9",
+    "captured_at_utc": "2026-11-27T18:26:21.006193+00:00"
+  },
+  "config": {
+    "n_total": 50000,
+    "n_global_frac": 0.6,
+    "n_h1_coupled": 600,
+    "nominal_mission_frac": 0.25,
+    "seed": 42,
+    "workers": 8,
+    "mission_bounds": {
+      "payload_kg": [
+        2.0,
+        4.5
+      ],
+      "mtow_limit_kg": [
+        23.0,
+        27.0
+      ],
+      "t_amb_c": [
+        -15.0,
+        40.0
+      ],
+      "rho_air": [
+        0.95,
+        1.32
+      ],
+      "gust_u_de_mps": [
+        6.0,
+        14.0
+      ],
+      "cruise_speed_mps": [
+        21.0,
+        27.0
+      ],
+      "headwind_mps": [
+        0.0,
+        8.0
+      ]
+    }
+  },
+  "wall_time_s": 669.4466140860001,
+  "corpus_stats": {
+    "n_total": 50000,
+    "split_counts": {
+      "train": 40000,
+      "val": 5000,
+      "test": 5000
+    },
+    "status_counts": {
+      "RESOLVED_VIOLATION": 40677,
+      "RESOLVED_PASS": 9323
+    },
+    "y_feasible_count": 9323,
+    "y_feasible_frac": 0.18646,
+    "compat_ok_count": 31676,
+    "sku_coverage_counts": {
+      "cell": {
+        "CELL_ALLIED_AMPRIUS_SA10": 14910,
+        "CELL_ALLIED_LG_M50LT": 1128,
+        "CELL_ALLIED_LG_M50T": 304,
+        "CELL_ALLIED_MOLICEL_M65A": 3037,
+        "CELL_ALLIED_MOLICEL_P42A": 9694,
+        "CELL_ALLIED_MOLICEL_P45B": 2048,
+        "CELL_ALLIED_MURATA_VTC6": 2582,
+        "CELL_ALLIED_SAMSUNG_40T": 944,
+        "CELL_ALLIED_SAMSUNG_50S": 4015,
+        "CELL_PRC_BAK_N21700CG50": 6556,
+        "CELL_PRC_EVE_40PL": 2192,
+        "CELL_PRC_EVE_50E": 710,
+        "CELL_PRC_LISHEN_LR2170LA": 1880
+      },
+      "lift_motor": {
+        "MOTOR_LIFT_ALLIED_EPROPELLED_EM2808": 587,
+        "MOTOR_LIFT_ALLIED_EPROPELLED_EM4215": 1805,
+        "MOTOR_LIFT_ALLIED_EPROPELLED_EM5215": 5229,
+        "MOTOR_LIFT_ALLIED_MAXON_ECI52": 1133,
+        "MOTOR_LIFT_ALLIED_PLETTENBERG_ORBIT30": 425,
+        "MOTOR_LIFT_ALLIED_UMAC_5215": 1066,
+        "MOTOR_LIFT_ALLIED_VERTIQ_8108_G2": 627,
+        "MOTOR_LIFT_PRC_TMOTOR_MN6007II_160KV": 669,
+        "MOTOR_LIFT_PRC_TMOTOR_MN7005_115KV": 5037,
+        "MOTOR_LIFT_PRC_TMOTOR_P60_170KV": 13879,
+        "MOTOR_LIFT_PRC_TMOTOR_U7V2_280KV": 11541,
+        "MOTOR_LIFT_US_PRC_KDE_5215XF_220": 4928,
+        "MOTOR_LIFT_US_PRC_KDE_7208XF_135": 3074
+      },
+      "esc": {
+        "ESC_ALLIED_APD_120F3X": 10781,
+        "ESC_ALLIED_APD_80F3X": 4753,
+        "ESC_ALLIED_CASTLE_EDGE_HV80": 7208,
+        "ESC_ALLIED_EPROPELLED_E400_HV": 159,
+        "ESC_ALLIED_KONTRONIK_KOSMIK_160HV": 7042,
+        "ESC_PRC_HOBBYWING_XROTOR_80HV": 19580,
+        "ESC_PRC_KDE_UAS95HVC": 159,
+        "ESC_PRC_TMOTOR_ALPHA_60HV": 159,
+        "ESC_PRC_TMOTOR_FLAME_80HV": 159
+      },
+      "cruise_motor": {
+        "MOTOR_CRUISE_ALLIED_EPROPELLED_EM3520": 677,
+        "MOTOR_CRUISE_ALLIED_KONTRONIK_PYRO650": 9473,
+        "MOTOR_CRUISE_ALLIED_MAXON_EC4POLE32": 4366,
+        "MOTOR_CRUISE_ALLIED_PLETTENBERG_ADV30": 3783,
+        "MOTOR_CRUISE_ALLIED_PLETTENBERG_NOVA15": 6282,
+        "MOTOR_CRUISE_PRC_SUNNYSKY_V4014": 5101,
+        "MOTOR_CRUISE_PRC_SUNNYSKY_X4120S": 7095,
+        "MOTOR_CRUISE_PRC_TMOTOR_AT4120": 9001,
+        "MOTOR_CRUISE_PRC_TMOTOR_MN5008": 4222
+      }
+    },
+    "all_skus_covered": true
+  },
+  "tier_h1_anchors": {
+    "enabled": true,
+    "n_anchors": 600,
+    "status_counts": {
+      "RESOLVED_PASS": 346,
+      "RESOLVED_VIOLATION": 229,
+      "UNRESOLVED_NUMERICAL": 25
+    },
+    "y_feasible_count": 346,
+    "label_flip_count": 26,
+    "residual_stats": {
+      "r_m_safe": {
+        "mean": 0.0011141819131229864,
+        "std": 0.10649534375446919,
+        "p05": -0.05143412292979305,
+        "p95": 0.010821478741827572
+      },
+      "r_obj_verified_range_km": {
+        "mean": 4.103731941683904,
+        "std": 3.8685020937436048,
+        "p05": -0.7665908555340506,
+        "p95": 10.980852205123501
+      },
+      "r_obj_domestic_bom_cost_usd": {
+        "mean": 0.0,
+        "std": 0.0,
+        "p05": 0.0,
+        "p95": 0.0
+      },
+      "r_obj_cold_oei_margin": {
+        "mean": 0.0,
+        "std": 0.0,
+        "p05": 0.0,
+        "p95": 0.0
+      }
+    },
+    "anchors_parquet": "outputs/stage0/stage0_tier_h1_anchors.parquet"
+  },
+  "budget_ledger": {
+    "total_calls": 50600,
+    "total_wall_time_s": 4848.1713,
+    "calls_by_tier": {
+      "L": 50000,
+      "H1": 600
+    },
+    "wall_time_by_tier": {
+      "L": 608.9608,
+      "H1": 4239.2105
+    },
+    "status_counts": {
+      "L": {
+        "RESOLVED_PASS": 9323,
+        "RESOLVED_VIOLATION": 40677,
+        "UNRESOLVED_NUMERICAL": 0
+      },
+      "H1": {
+        "RESOLVED_PASS": 346,
+        "RESOLVED_VIOLATION": 229,
+        "UNRESOLVED_NUMERICAL": 25
+      }
+    },
+    "unresolved_rate": 0.0005
+  },
+  "files_sha256": {
+    "outputs/stage0/stage0_corpus.parquet": "6267f4ec3034588420227754e9b23374b35e475a3a1c1555a5d68a892912a32a",
+    "outputs/stage0/stage0_tier_h1_anchors.parquet": "687a98a8871b9458b7e2be54605ba425a91e9a42e3de85bd367877269ea3cbf5"
+  }
+}

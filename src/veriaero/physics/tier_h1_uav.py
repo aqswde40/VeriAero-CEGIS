@@ -64,7 +64,7 @@ def _build_or_get_oas_wingbox_problem(
     geom: dict[str, float],
     airfoil_cst: dict[str, Any],
     sigma_allow_mpa: float,
-    num_y: int = 15,
+    num_y: int = 29,
     num_x: int = 3,
 ) -> tuple[om.Problem, np.ndarray]:
     """Build or retrieve a truly reusable cached setup() OpenMDAO Problem for the CFRP wingbox."""
@@ -280,7 +280,7 @@ def run_openaerostruct_wing(
     m_wing_kg: float,
     airfoil_cst: dict[str, Any],
     scenario: dict[str, float],
-    num_y: int = 15,
+    num_y: int = 29,
     num_x: int = 3,
 ) -> dict[str, Any]:
     """Run cached OpenAeroStruct CFRP wingbox (`with_viscous=False`) at cruise, +3.0g, & Pratt gust."""
@@ -376,11 +376,13 @@ class TierH1UAVOracle:
         xfoil_runner: XFoilRunner | None = None,
         name: str = "tier_h1_uav",
         capture_provenance: bool = False,
+        xfoil_workers: int = 8,
     ) -> None:
         self._schema = schema
         self._xfoil = xfoil_runner or XFoilRunner()
         self._name = name
         self._capture_provenance = capture_provenance
+        self._xfoil_workers = max(1, int(xfoil_workers))
         self._sub_oracles: tuple[Any, ...] = ()
 
     @property
@@ -521,7 +523,7 @@ class TierH1UAVOracle:
                 }
 
             station_inputs = list(zip([float(y) for y in y_gl], [float(dy) for dy in dy_gl]))
-            with ThreadPoolExecutor(max_workers=min(8, len(station_inputs))) as pool:
+            with ThreadPoolExecutor(max_workers=min(self._xfoil_workers, len(station_inputs))) as pool:
                 xfoil_stations = list(pool.map(lambda pair: _eval_gl_station(pair[0], pair[1]), station_inputs))
 
             cd_prof_num = sum(st["cd_blended"] * st["chord_m"] * st["dy_m"] for st in xfoil_stations)
